@@ -920,7 +920,7 @@ def main():
         )
         st.altair_chart(comparison_chart, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
-    pass
+    
 
 if __name__ == "__main__":
     main()
