@@ -141,7 +141,7 @@ def load_page(file_path):
     # Add back button at the top
     if st.button("Back", key='back_button'):
         st.session_state.page = 'home'
-        st.experimental_rerun()
+        st.rerun()
         
     # Execute the file
     subprocess.run(["streamlit", "run", file_path])
