@@ -1,9 +1,6 @@
 import streamlit as st
+import subprocess
 import os
-
-# Initialize session state for navigation
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = 'home'
 
 # Configure the page
 st.set_page_config(
@@ -13,7 +10,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS (keeping exactly the same as original)
+# Initialize session state for navigation
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+
+# Custom CSS (keeping all your existing CSS...)
 st.markdown("""
 <style>
     /* Main page styling */
@@ -116,7 +117,6 @@ st.markdown("""
         line-height: 1.6 !important;
     }
 
-    /* Button styling */
     .launch-button {
         font-size: 1.2rem !important;
         background: linear-gradient(120deg, #33ccff, #191970);
@@ -134,11 +134,19 @@ st.markdown("""
         background: linear-gradient(120deg, #191970, #33ccff);
         transform: scale(1.05);
     }
-
 </style>
 """, unsafe_allow_html=True)
 
-def show_home():
+def load_page(file_path):
+    # Add back button at the top
+    if st.button("Back", key='back_button'):
+        st.session_state.page = 'home'
+        st.experimental_rerun()
+        
+    # Execute the file
+    subprocess.run(["streamlit", "run", file_path])
+
+def show_home_page():
     st.markdown('<h1 class="big-title">SentinelSecure</h1>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">AI Driven Insider Threat Detection and Adaptive CyberSecurity Training</p>', unsafe_allow_html=True)
 
@@ -157,7 +165,7 @@ def show_home():
         """, unsafe_allow_html=True)
 
         if st.button('Launch Threat Detection', key='launch-btn-1'):
-            st.session_state.current_page = 'threat_detection'
+            st.session_state.page = 'threat_detection'
             st.experimental_rerun()
 
     with col2:
@@ -173,41 +181,13 @@ def show_home():
         """, unsafe_allow_html=True)
 
         if st.button('Launch Security Training', key='launch-btn-2'):
-            st.session_state.current_page = 'security_training'
+            st.session_state.page = 'security_training'
             st.experimental_rerun()
 
-def show_threat_detection():
-    # Import and run the Employee App
-    import sys
-    sys.path.append(r"C:\Users\Nitya\Downloads\SentinelSecure\Employee App.py")
-    import Employee_App
-    
-    # Add back button at the top
-    if st.button('← Back to Home', key='back-btn-1'):
-        st.session_state.current_page = 'home'
-        st.experimental_rerun()
-    
-    # Run the app's main content
-    Employee_App.main()  # You'll need to modify Employee_App.py to have a main() function
-
-def show_security_training():
-    # Import and run the Security Training App
-    import sys
-    sys.path.append(r"C:\Users\Nitya\Downloads\SentinelSecure\New_Main_Page.py")
-    import New_Main_Page
-    
-    # Add back button at the top
-    if st.button('← Back to Home', key='back-btn-2'):
-        st.session_state.current_page = 'home'
-        st.experimental_rerun()
-    
-    # Run the app's main content
-    New_Main_Page.main()  # You'll need to modify New_Main_Page.py to have a main() function
-
 # Main navigation logic
-if st.session_state.current_page == 'home':
-    show_home()
-elif st.session_state.current_page == 'threat_detection':
-    show_threat_detection()
-elif st.session_state.current_page == 'security_training':
-    show_security_training()
+if st.session_state.page == 'home':
+    show_home_page()
+elif st.session_state.page == 'threat_detection':
+    load_page(r"C:\Users\Nitya\Downloads\SentinelSecure\Employee App.py")
+elif st.session_state.page == 'security_training':
+    load_page(r"C:\Users\Nitya\Downloads\SentinelSecure\New_Main_Page.py")
