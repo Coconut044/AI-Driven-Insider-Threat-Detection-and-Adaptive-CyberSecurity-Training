@@ -1,6 +1,9 @@
 import streamlit as st
-import subprocess
 import os
+
+# Initialize session state for navigation
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = 'home'
 
 # Configure the page
 st.set_page_config(
@@ -10,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS with modern Gen Z aesthetics
+# Custom CSS (keeping exactly the same as original)
 st.markdown("""
 <style>
     /* Main page styling */
@@ -135,47 +138,76 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Main content
-st.markdown('<h1 class="big-title">SentinelSecure</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">AI Driven Insider Threat Detection and Adaptive CyberSecurity Training</p>', unsafe_allow_html=True)
+def show_home():
+    st.markdown('<h1 class="big-title">SentinelSecure</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">AI Driven Insider Threat Detection and Adaptive CyberSecurity Training</p>', unsafe_allow_html=True)
 
-# Create two columns for the cards
-col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 1])
 
-# Card 1
-with col1:
-    st.markdown("""
-        <div class="button-card">
-            <span class="emoji-icon">🛡️</span>
-            <h3 class="card-title">Insider Threat Detection</h3>
-            <p class="card-description">
-                Supercharged AI defense system that spots suspicious activity in real-time. 
-                Stay one step ahead of potential threats with our cutting-edge detection engine.
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+    with col1:
+        st.markdown("""
+            <div class="button-card">
+                <span class="emoji-icon">🛡️</span>
+                <h3 class="card-title">Insider Threat Detection</h3>
+                <p class="card-description">
+                    Supercharged AI defense system that spots suspicious activity in real-time. 
+                    Stay one step ahead of potential threats with our cutting-edge detection engine.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    # Launch button for app 1 (example: "Threat Detection")
-    if st.button('Launch Threat Detection', key='launch-btn-1'):
-        # Provide the path of your python file (streamlit app)
-        file_path = r"C:\Users\Nitya\Downloads\SentinelSecure\Employee App.py"  # Update with the actual path
-        subprocess.run(["streamlit", "run", file_path])
+        if st.button('Launch Threat Detection', key='launch-btn-1'):
+            st.session_state.current_page = 'threat_detection'
+            st.experimental_rerun()
 
-# Card 2
-with col2:
-    st.markdown("""
-        <div class="button-card">
-            <span class="emoji-icon">✨</span>
-            <h3 class="card-title">Adaptive Security Training</h3>
-            <p class="card-description">
-                Level up your security game with personalized training that adapts to your style. 
-                Interactive modules that make cybersecurity learning actually fun!
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+            <div class="button-card">
+                <span class="emoji-icon">✨</span>
+                <h3 class="card-title">Adaptive Security Training</h3>
+                <p class="card-description">
+                    Level up your security game with personalized training that adapts to your style. 
+                    Interactive modules that make cybersecurity learning actually fun!
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
 
-    # Launch button for app 2 (example: "Security Training")
-    if st.button('Launch Security Training', key='launch-btn-2'):
-        # Provide the path of your python file (streamlit app)
-        file_path = r"C:\Users\Nitya\Downloads\SentinelSecure\New_Main_Page.py"  # Update with the actual path
-        subprocess.run(["streamlit", "run", file_path])
+        if st.button('Launch Security Training', key='launch-btn-2'):
+            st.session_state.current_page = 'security_training'
+            st.experimental_rerun()
+
+def show_threat_detection():
+    # Import and run the Employee App
+    import sys
+    sys.path.append(r"C:\Users\Nitya\Downloads\SentinelSecure\Employee App.py")
+    import Employee_App
+    
+    # Add back button at the top
+    if st.button('← Back to Home', key='back-btn-1'):
+        st.session_state.current_page = 'home'
+        st.experimental_rerun()
+    
+    # Run the app's main content
+    Employee_App.main()  # You'll need to modify Employee_App.py to have a main() function
+
+def show_security_training():
+    # Import and run the Security Training App
+    import sys
+    sys.path.append(r"C:\Users\Nitya\Downloads\SentinelSecure\New_Main_Page.py")
+    import New_Main_Page
+    
+    # Add back button at the top
+    if st.button('← Back to Home', key='back-btn-2'):
+        st.session_state.current_page = 'home'
+        st.experimental_rerun()
+    
+    # Run the app's main content
+    New_Main_Page.main()  # You'll need to modify New_Main_Page.py to have a main() function
+
+# Main navigation logic
+if st.session_state.current_page == 'home':
+    show_home()
+elif st.session_state.current_page == 'threat_detection':
+    show_threat_detection()
+elif st.session_state.current_page == 'security_training':
+    show_security_training()
