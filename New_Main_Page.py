@@ -184,7 +184,7 @@ def main():
     elif st.session_state.page == "space_quiz":
         load_quiz_page(r"C:\Users\Nitya\Downloads\SentinelSecure\Space_Quiz.py")
         
-    pass
+    
 
 if __name__ == "__main__":
     main()
