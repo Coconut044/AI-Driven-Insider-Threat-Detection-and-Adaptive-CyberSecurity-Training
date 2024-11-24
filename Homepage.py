@@ -166,7 +166,7 @@ def show_home_page():
 
         if st.button('Launch Threat Detection', key='launch-btn-1'):
             st.session_state.page = 'threat_detection'
-            st.experimental_rerun()
+            st.rerun()
 
     with col2:
         st.markdown("""
@@ -182,7 +182,7 @@ def show_home_page():
 
         if st.button('Launch Security Training', key='launch-btn-2'):
             st.session_state.page = 'security_training'
-            st.experimental_rerun()
+            st.rerun()
 
 # Main navigation logic
 if st.session_state.page == 'home':
