@@ -1,5 +1,6 @@
 import streamlit as st
-import subprocess
+import importlib.util
+import sys
 import os
 
 # Configure the page
@@ -10,11 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Initialize session state for navigation
-if 'page' not in st.session_state:
-    st.session_state.page = 'home'
-
-# Custom CSS (keeping all your existing CSS...)
+# Inject custom CSS
 st.markdown("""
 <style>
     /* Main page styling */
@@ -137,16 +134,69 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def load_page(file_path):
+# Initialize session state for navigation
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+
+class PageConfig:
+    """Class to store and manage page configuration settings"""
+    _instance = None
+    
+    def __init__(self):
+        if PageConfig._instance is not None:
+            raise Exception("PageConfig is a singleton!")
+        PageConfig._instance = self
+        self.config_set = True
+    
+    @staticmethod
+    def get_instance():
+        if PageConfig._instance is None:
+            PageConfig()
+        return PageConfig._instance
+
+def load_py_file(file_path):
+    """Load and execute a Python file without allowing it to set page config"""
     # Add back button at the top
     if st.button("Back", key='back_button'):
         st.session_state.page = 'home'
-        st.rerun()
+    
+    # Get the file name without extension
+    file_name = os.path.splitext(os.path.basename(file_path))[0]
+    
+    # Import and run the Python file
+    spec = importlib.util.spec_from_file_location(file_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    
+    module.st = st
+    
+    original_set_page_config = st.set_page_config
+    st.set_page_config = lambda *args, **kwargs: None
+    
+    try:
+        sys.modules[file_name] = module
+        spec.loader.exec_module(module)
         
-    # Execute the file
-    subprocess.run(["streamlit", "run", file_path])
+        if hasattr(module, 'main'):
+            module.main()
+        else:
+            entry_point_found = False
+            for attr_name in dir(module):
+                attr = getattr(module, attr_name)
+                if callable(attr) and attr_name.lower().startswith(('run', 'app', 'start', 'main')):  # This triggers the page execution
+                    attr()
+                    entry_point_found = True
+                    break
+            
+            if not entry_point_found:
+                module.__dict__.get('__builtins__', {}).update({'st': st})
+                
+    except Exception as e:
+        st.error(f"Error loading {file_name}: {str(e)}")
+    finally:
+        st.set_page_config = original_set_page_config
 
 def show_home_page():
+    """Display the home page content"""
     st.markdown('<h1 class="big-title">SentinelSecure</h1>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">AI Driven Insider Threat Detection and Adaptive CyberSecurity Training</p>', unsafe_allow_html=True)
 
@@ -165,29 +215,26 @@ def show_home_page():
         """, unsafe_allow_html=True)
 
         if st.button('Launch Threat Detection', key='launch-btn-1'):
-            st.session_state.page = 'threat_detection'
-            st.rerun()
+            st.session_state.page = 'threat_detection'  # Set the page to threat_detection
 
     with col2:
         st.markdown("""
             <div class="button-card">
                 <span class="emoji-icon">✨</span>
-                <h3 class="card-title">Adaptive Security Training</h3>
+                <h3 class="card-title">Cybersecurity Training</h3>
                 <p class="card-description">
-                    Level up your security game with personalized training that adapts to your style. 
-                    Interactive modules that make cybersecurity learning actually fun!
+                    Adaptive learning modules designed to strengthen employee security skills through dynamic quizzes.
                 </p>
             </div>
         """, unsafe_allow_html=True)
 
-        if st.button('Launch Security Training', key='launch-btn-2'):
-            st.session_state.page = 'security_training'
-            st.rerun()
+        if st.button('Launch Training', key='launch-btn-2'):
+            st.session_state.page = 'training'  # Set the page to training
 
-# Main navigation logic
+# Main page routing
 if st.session_state.page == 'home':
     show_home_page()
 elif st.session_state.page == 'threat_detection':
-    load_page(r"C:\Users\Nitya\Downloads\SentinelSecure\Employee App.py")
-elif st.session_state.page == 'security_training':
-    load_page(r"C:\Users\Nitya\Downloads\SentinelSecure\New_Main_Page.py")
+    load_py_file(r"C:\Users\Nitya\Downloads\SentinelSecure\Employee App.py")
+elif st.session_state.page == 'training':
+    load_py_file(r"C:\Users\Nitya\Downloads\SentinelSecure\New_Main_Page.py")
